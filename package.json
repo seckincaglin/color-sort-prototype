@@ -1,0 +1,20 @@
+{
+  "name": "color-sort-prototype",
+  "version": "1.0.0",
+  "description": "Color sorting puzzle game",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^15.1.5",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.7.3",
+    "@types/react": "^19.0.6",
+    "@types/node": "^22.10.5"
+  }
+}

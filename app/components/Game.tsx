@@ -1,50 +1,55 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import styles from './Game.module.css';
+import Confetti from './Confetti';
 
 interface GameProps {
   onShowTutorial: () => void;
 }
 
-type Color = 'red' | 'blue' | 'green' | 'yellow' | 'purple' | 'orange';
+type Color = 'red' | 'blue' | 'green' | 'yellow' | 'purple' | 'orange' | 'pink' | 'cyan';
 type Tube = Color[];
 
 const TUBE_CAPACITY = 4;
-const COLORS: Color[] = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
+const ALL_COLORS: Color[] = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan'];
 
-// Vibrant, easy-to-distinguish colors with gradients for 3D effect
-const COLOR_STYLES: Record<Color, { background: string; border: string; shadow: string }> = {
-  red: {
-    background: 'linear-gradient(145deg, #FF6B6B 0%, #EE4444 50%, #CC2222 100%)',
-    border: '#AA0000',
-    shadow: 'rgba(238, 68, 68, 0.6)'
-  },
-  blue: {
-    background: 'linear-gradient(145deg, #5DADE2 0%, #3498DB 50%, #2471A3 100%)',
-    border: '#1A5276',
-    shadow: 'rgba(52, 152, 219, 0.6)'
-  },
-  green: {
-    background: 'linear-gradient(145deg, #58D68D 0%, #2ECC71 50%, #229954 100%)',
-    border: '#196F3D',
-    shadow: 'rgba(46, 204, 113, 0.6)'
-  },
-  yellow: {
-    background: 'linear-gradient(145deg, #F9E79F 0%, #F4D03F 50%, #D4AC0D 100%)',
-    border: '#9A7D0A',
-    shadow: 'rgba(244, 208, 63, 0.6)'
-  },
-  purple: {
-    background: 'linear-gradient(145deg, #BB8FCE 0%, #9B59B6 50%, #7D3C98 100%)',
-    border: '#5B2C6F',
-    shadow: 'rgba(155, 89, 182, 0.6)'
-  },
-  orange: {
-    background: 'linear-gradient(145deg, #FFAA5B 0%, #FF8C42 50%, #E67E22 100%)',
-    border: '#A04000',
-    shadow: 'rgba(255, 140, 66, 0.6)'
-  }
+// Clean, flat colors - easy on the eyes
+const COLOR_STYLES: Record<Color, string> = {
+  red: '#E53935',
+  blue: '#1E88E5',
+  green: '#43A047',
+  yellow: '#FDD835',
+  purple: '#8E24AA',
+  orange: '#FB8C00',
+  pink: '#EC407A',
+  cyan: '#00ACC1'
+};
+
+// Level configuration: how many colors per level range
+const getLevelConfig = (level: number) => {
+  if (level <= 3) return { colors: 3, emptyTubes: 2 };
+  if (level <= 6) return { colors: 4, emptyTubes: 2 };
+  if (level <= 10) return { colors: 5, emptyTubes: 2 };
+  if (level <= 15) return { colors: 6, emptyTubes: 2 };
+  return { colors: Math.min(7 + Math.floor((level - 15) / 5), 8), emptyTubes: 2 };
+};
+
+// Target moves based on level (optimal + buffer)
+const getTargetMoves = (level: number, numColors: number) => {
+  const base = numColors * 4; // rough optimal
+  return Math.floor(base + level * 0.5);
+};
+
+// Performance rating based on moves vs target
+const getPerformance = (moves: number, target: number) => {
+  const ratio = moves / target;
+  if (ratio <= 1) return { rating: '🏆 PERFECT!', tier: 'perfect', percentile: Math.floor(95 + Math.random() * 5) };
+  if (ratio <= 1.2) return { rating: '🌟 Amazing!', tier: 'amazing', percentile: Math.floor(85 + Math.random() * 10) };
+  if (ratio <= 1.5) return { rating: '✨ Great!', tier: 'great', percentile: Math.floor(70 + Math.random() * 15) };
+  if (ratio <= 2) return { rating: '👍 Good', tier: 'good', percentile: Math.floor(50 + Math.random() * 20) };
+  if (ratio <= 2.5) return { rating: '😅 Okay', tier: 'okay', percentile: Math.floor(30 + Math.random() * 20) };
+  return { rating: '💪 Keep practicing!', tier: 'practice', percentile: Math.floor(10 + Math.random() * 20) };
 };
 
 export default function Game({ onShowTutorial }: GameProps) {
@@ -54,15 +59,69 @@ export default function Game({ onShowTutorial }: GameProps) {
   const [isWon, setIsWon] = useState(false);
   const [moves, setMoves] = useState(0);
   const [level, setLevel] = useState(1);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [performance, setPerformance] = useState<{ rating: string; tier: string; percentile: number } | null>(null);
+  
+  const audioContextRef = useRef<AudioContext | null>(null);
 
-  useEffect(() => {
-    initializeGame();
-  }, [level]);
+  // Initialize audio context on first user interaction
+  const initAudio = useCallback(() => {
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    return audioContextRef.current;
+  }, []);
 
-  const initializeGame = () => {
+  // Play sound effect
+  const playSound = useCallback((type: 'move' | 'win' | 'error') => {
+    try {
+      const ctx = initAudio();
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      
+      if (type === 'move') {
+        oscillator.frequency.setValueAtTime(600, ctx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.1);
+        gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 0.1);
+      } else if (type === 'win') {
+        // Victory fanfare
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.15);
+          gain.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.15);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.15 + 0.3);
+          osc.start(ctx.currentTime + i * 0.15);
+          osc.stop(ctx.currentTime + i * 0.15 + 0.3);
+        });
+      } else if (type === 'error') {
+        oscillator.frequency.setValueAtTime(200, ctx.currentTime);
+        gainNode.gain.setValueAtTime(0.08, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 0.15);
+      }
+    } catch (e) {
+      // Audio not supported, silent fail
+    }
+  }, [initAudio]);
+
+  const initializeGame = useCallback(() => {
+    const config = getLevelConfig(level);
+    const colors = ALL_COLORS.slice(0, config.colors);
+    
     // Create balls for each color
     const allBalls: Color[] = [];
-    COLORS.forEach(color => {
+    colors.forEach(color => {
       for (let i = 0; i < TUBE_CAPACITY; i++) {
         allBalls.push(color);
       }
@@ -74,24 +133,29 @@ export default function Game({ onShowTutorial }: GameProps) {
       [allBalls[i], allBalls[j]] = [allBalls[j], allBalls[i]];
     }
 
-    // Distribute into tubes (leave 2 empty)
+    // Distribute into tubes
     const newTubes: Tube[] = [];
-    const numFilledTubes = COLORS.length;
-    
-    for (let i = 0; i < numFilledTubes; i++) {
+    for (let i = 0; i < colors.length; i++) {
       newTubes.push(allBalls.slice(i * TUBE_CAPACITY, (i + 1) * TUBE_CAPACITY));
     }
     
-    // Add 2 empty tubes
-    newTubes.push([]);
-    newTubes.push([]);
+    // Add empty tubes
+    for (let i = 0; i < config.emptyTubes; i++) {
+      newTubes.push([]);
+    }
 
     setTubes(newTubes);
     setSelectedTube(null);
     setMoveHistory([]);
     setIsWon(false);
     setMoves(0);
-  };
+    setShowConfetti(false);
+    setPerformance(null);
+  }, [level]);
+
+  useEffect(() => {
+    initializeGame();
+  }, [initializeGame]);
 
   const checkWin = (currentTubes: Tube[]) => {
     return currentTubes.every(tube => {
@@ -114,17 +178,17 @@ export default function Game({ onShowTutorial }: GameProps) {
   const handleTubeClick = (tubeIndex: number) => {
     if (isWon) return;
 
+    // Initialize audio on first click
+    initAudio();
+
     if (selectedTube === null) {
-      // Select tube if it has balls
       if (tubes[tubeIndex].length > 0) {
         setSelectedTube(tubeIndex);
       }
     } else {
       if (selectedTube === tubeIndex) {
-        // Deselect if clicking the same tube
         setSelectedTube(null);
       } else {
-        // Try to move ball
         const fromTube = tubes[selectedTube];
         const toTube = tubes[tubeIndex];
 
@@ -133,16 +197,25 @@ export default function Game({ onShowTutorial }: GameProps) {
           const ball = newTubes[selectedTube].pop()!;
           newTubes[tubeIndex].push(ball);
 
+          playSound('move');
+          
           setTubes(newTubes);
           setMoveHistory([...moveHistory, { from: selectedTube, to: tubeIndex, ballColor: ball }]);
           setMoves(moves + 1);
           setSelectedTube(null);
 
-          // Check win condition
           if (checkWin(newTubes)) {
+            const config = getLevelConfig(level);
+            const target = getTargetMoves(level, config.colors);
+            const perf = getPerformance(moves + 1, target);
+            
             setIsWon(true);
+            setShowConfetti(true);
+            setPerformance(perf);
+            playSound('win');
           }
         } else {
+          playSound('error');
           setSelectedTube(null);
         }
       }
@@ -157,6 +230,7 @@ export default function Game({ onShowTutorial }: GameProps) {
     const ball = newTubes[lastMove.to].pop()!;
     newTubes[lastMove.from].push(ball);
 
+    playSound('move');
     setTubes(newTubes);
     setMoveHistory(moveHistory.slice(0, -1));
     setMoves(Math.max(0, moves - 1));
@@ -171,8 +245,13 @@ export default function Game({ onShowTutorial }: GameProps) {
     setLevel(level + 1);
   };
 
+  const config = getLevelConfig(level);
+  const targetMoves = getTargetMoves(level, config.colors);
+
   return (
     <div className={styles.game}>
+      {showConfetti && <Confetti />}
+      
       <div className={styles.header}>
         <h1 className={styles.title}>🎨 Color Sort</h1>
         <div className={styles.stats}>
@@ -183,6 +262,11 @@ export default function Game({ onShowTutorial }: GameProps) {
           <div className={styles.statItem}>
             <span className={styles.statLabel}>Moves</span>
             <span className={styles.statValue}>{moves}</span>
+            <span className={styles.statTarget}>Target: {targetMoves}</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statLabel}>Colors</span>
+            <span className={styles.statValue}>{config.colors}</span>
           </div>
         </div>
       </div>
@@ -203,24 +287,13 @@ export default function Game({ onShowTutorial }: GameProps) {
                     {ball && (
                       <div 
                         className={styles.ball}
-                        style={{
-                          background: COLOR_STYLES[ball].background,
-                          borderColor: COLOR_STYLES[ball].border,
-                          boxShadow: `
-                            inset 0 -8px 16px rgba(0,0,0,0.3),
-                            inset 0 8px 16px rgba(255,255,255,0.4),
-                            0 4px 12px ${COLOR_STYLES[ball].shadow}
-                          `
-                        }}
-                      >
-                        <div className={styles.ballShine} />
-                      </div>
+                        style={{ backgroundColor: COLOR_STYLES[ball] }}
+                      />
                     )}
                   </div>
                 );
               })}
             </div>
-            <div className={styles.tubeBase} />
           </div>
         ))}
       </div>
@@ -247,19 +320,31 @@ export default function Game({ onShowTutorial }: GameProps) {
         </button>
       </div>
 
-      {isWon && (
+      {isWon && performance && (
         <div className={styles.winModal}>
           <div className={styles.winCard}>
-            <h2 className={styles.winTitle}>🎉 Level Complete!</h2>
-            <p className={styles.winText}>
-              Completed in <strong>{moves}</strong> moves
-            </p>
+            <div className={styles.winEmoji}>🎉</div>
+            <h2 className={styles.winTitle}>Level {level} Complete!</h2>
+            <div className={styles.winRating}>{performance.rating}</div>
+            <div className={styles.winStats}>
+              <div className={styles.winStatRow}>
+                <span>Your moves:</span>
+                <strong>{moves}</strong>
+              </div>
+              <div className={styles.winStatRow}>
+                <span>Target:</span>
+                <strong>{targetMoves}</strong>
+              </div>
+            </div>
+            <div className={styles.percentile}>
+              Better than <span className={styles.percentileNum}>{performance.percentile}%</span> of players!
+            </div>
             <div className={styles.winButtons}>
-              <button className={styles.playAgainButton} onClick={handleNextLevel}>
+              <button className={styles.nextLevelButton} onClick={handleNextLevel}>
                 Next Level →
               </button>
               <button className={styles.replayButton} onClick={handleReset}>
-                Replay
+                Replay Level
               </button>
             </div>
           </div>

@@ -21,30 +21,30 @@
   }
 }
 
-@keyframes bounce {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
 @keyframes ballDrop {
   0% { 
-    transform: translateY(-20px);
+    transform: translateY(-15px);
     opacity: 0;
   }
-  60% { transform: translateY(5px); }
+  70% { transform: translateY(3px); }
   100% { 
     transform: translateY(0);
     opacity: 1;
   }
 }
 
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
 .header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
 
 .title {
-  font-size: 48px;
+  font-size: 42px;
   color: white;
   font-weight: 800;
   text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -54,269 +54,286 @@
 .stats {
   display: flex;
   justify-content: center;
-  gap: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .statItem {
   background: rgba(255, 255, 255, 0.95);
-  padding: 12px 24px;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  padding: 10px 20px;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 80px;
+  min-width: 70px;
 }
 
 .statLabel {
   font-weight: 600;
   color: #888;
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
 .statValue {
   font-weight: 800;
   color: #667eea;
-  font-size: 28px;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.statTarget {
+  font-size: 10px;
+  color: #aaa;
+  margin-top: 2px;
 }
 
 .tubesContainer {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 16px;
-  max-width: 900px;
-  margin: 0 auto 30px;
-  padding: 24px;
+  gap: 12px;
+  max-width: 800px;
+  margin: 0 auto 24px;
+  padding: 20px;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
+  border-radius: 20px;
   backdrop-filter: blur(10px);
 }
 
 .tubeWrapper {
   flex: 0 0 auto;
-  width: 80px;
+  width: 60px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  animation: slideUp 0.5s ease;
+  transition: all 0.2s ease;
+  animation: slideUp 0.4s ease;
   animation-fill-mode: both;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.tubeWrapper:nth-child(1) { animation-delay: 0.1s; }
-.tubeWrapper:nth-child(2) { animation-delay: 0.15s; }
-.tubeWrapper:nth-child(3) { animation-delay: 0.2s; }
-.tubeWrapper:nth-child(4) { animation-delay: 0.25s; }
-.tubeWrapper:nth-child(5) { animation-delay: 0.3s; }
-.tubeWrapper:nth-child(6) { animation-delay: 0.35s; }
-.tubeWrapper:nth-child(7) { animation-delay: 0.4s; }
-.tubeWrapper:nth-child(8) { animation-delay: 0.45s; }
+.tubeWrapper:nth-child(1) { animation-delay: 0.05s; }
+.tubeWrapper:nth-child(2) { animation-delay: 0.1s; }
+.tubeWrapper:nth-child(3) { animation-delay: 0.15s; }
+.tubeWrapper:nth-child(4) { animation-delay: 0.2s; }
+.tubeWrapper:nth-child(5) { animation-delay: 0.25s; }
+.tubeWrapper:nth-child(6) { animation-delay: 0.3s; }
+.tubeWrapper:nth-child(7) { animation-delay: 0.35s; }
+.tubeWrapper:nth-child(8) { animation-delay: 0.4s; }
+.tubeWrapper:nth-child(9) { animation-delay: 0.45s; }
+.tubeWrapper:nth-child(10) { animation-delay: 0.5s; }
 
 .tubeWrapper:hover {
-  transform: translateY(-8px);
+  transform: translateY(-6px);
 }
 
 .tubeWrapper.selected {
-  transform: translateY(-16px) scale(1.05);
+  transform: translateY(-12px) scale(1.08);
 }
 
 .tube {
-  background: linear-gradient(180deg, 
-    rgba(255, 255, 255, 0.3) 0%, 
-    rgba(255, 255, 255, 0.9) 10%, 
-    rgba(240, 240, 250, 0.95) 100%
-  );
-  border-radius: 0 0 40px 40px;
-  padding: 8px;
-  min-height: 280px;
-  width: 70px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 0 0 30px 30px;
+  padding: 6px;
+  min-height: 220px;
+  width: 52px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   gap: 4px;
   box-shadow: 
-    inset -3px 0 8px rgba(0, 0, 0, 0.1),
-    inset 3px 0 8px rgba(0, 0, 0, 0.1),
-    inset 0 -8px 16px rgba(0, 0, 0, 0.05),
-    0 8px 24px rgba(0, 0, 0, 0.2);
-  border: 3px solid rgba(255, 255, 255, 0.8);
+    inset 0 0 20px rgba(0, 0, 0, 0.05),
+    0 6px 20px rgba(0, 0, 0, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.8);
   border-top: none;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .selected .tube {
   border-color: #667eea;
   box-shadow: 
-    inset -3px 0 8px rgba(0, 0, 0, 0.1),
-    inset 3px 0 8px rgba(0, 0, 0, 0.1),
-    inset 0 -8px 16px rgba(0, 0, 0, 0.05),
-    0 8px 32px rgba(102, 126, 234, 0.5),
-    0 0 20px rgba(102, 126, 234, 0.3);
-}
-
-.tubeBase {
-  width: 78px;
-  height: 12px;
-  background: linear-gradient(180deg, #ddd 0%, #aaa 100%);
-  border-radius: 0 0 8px 8px;
-  margin-top: -2px;
-}
-
-.selected .tubeBase {
-  background: linear-gradient(180deg, #667eea 0%, #5a67d8 100%);
+    inset 0 0 20px rgba(0, 0, 0, 0.05),
+    0 6px 20px rgba(102, 126, 234, 0.4),
+    0 0 0 3px rgba(102, 126, 234, 0.2);
 }
 
 .ballSlot {
   width: 100%;
-  height: 58px;
+  height: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .ball {
-  width: 54px;
-  height: 54px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  border: 2px solid;
-  position: relative;
-  animation: ballDrop 0.4s ease-out;
-  transition: transform 0.2s ease;
+  animation: ballDrop 0.3s ease-out;
+  transition: transform 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .ball:hover {
-  transform: scale(1.08);
-}
-
-.ballShine {
-  position: absolute;
-  top: 6px;
-  left: 8px;
-  width: 18px;
-  height: 12px;
-  background: linear-gradient(180deg, 
-    rgba(255, 255, 255, 0.9) 0%, 
-    rgba(255, 255, 255, 0.4) 100%
-  );
-  border-radius: 50%;
-  transform: rotate(-30deg);
+  transform: scale(1.1);
 }
 
 .controls {
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .button {
-  padding: 14px 28px;
+  padding: 12px 24px;
   background: white;
   color: #667eea;
-  border-radius: 16px;
-  font-size: 16px;
+  border-radius: 12px;
+  font-size: 15px;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
   transition: all 0.2s ease;
-  border: 2px solid transparent;
+  border: none;
+  cursor: pointer;
 }
 
 .button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  transform: none !important;
 }
 
 .button:not(:disabled):hover {
   background: #667eea;
   color: white;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.35);
 }
 
 .button:not(:disabled):active {
-  transform: translateY(-1px);
+  transform: translateY(0);
 }
 
+/* Win Modal */
 .winModal {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
   animation: fadeIn 0.3s ease;
+  padding: 20px;
 }
 
 .winCard {
   background: white;
-  border-radius: 28px;
-  padding: 48px;
+  border-radius: 24px;
+  padding: 32px 40px;
   text-align: center;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
   animation: slideUp 0.5s ease;
-  max-width: 400px;
-  margin: 20px;
+  max-width: 360px;
+  width: 100%;
+}
+
+.winEmoji {
+  font-size: 64px;
+  animation: pulse 1s ease-in-out infinite;
+  margin-bottom: 8px;
 }
 
 .winTitle {
-  font-size: 42px;
+  font-size: 28px;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 800;
+}
+
+.winRating {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #667eea;
+  font-weight: 700;
+}
+
+.winStats {
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 16px;
   margin-bottom: 16px;
-  color: #667eea;
-  font-weight: 800;
 }
 
-.winText {
-  font-size: 20px;
+.winStatRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 16px;
   color: #666;
-  margin-bottom: 32px;
 }
 
-.winText strong {
-  color: #667eea;
+.winStatRow strong {
+  color: #333;
+  font-weight: 700;
+}
+
+.percentile {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 24px;
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  border-radius: 10px;
+}
+
+.percentileNum {
+  font-size: 20px;
   font-weight: 800;
+  color: #667eea;
 }
 
 .winButtons {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
-.playAgainButton {
+.nextLevelButton {
   width: 100%;
-  padding: 18px;
+  padding: 16px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  border-radius: 16px;
-  font-size: 18px;
+  border-radius: 14px;
+  font-size: 17px;
   font-weight: 700;
   transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
 }
 
-.playAgainButton:hover {
+.nextLevelButton:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
 }
 
 .replayButton {
   width: 100%;
-  padding: 14px;
+  padding: 12px;
   background: transparent;
   color: #667eea;
   border: 2px solid #667eea;
-  border-radius: 16px;
-  font-size: 16px;
+  border-radius: 14px;
+  font-size: 15px;
   font-weight: 600;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .replayButton:hover {
@@ -324,69 +341,66 @@
 }
 
 /* Mobile responsive */
-@media (max-width: 768px) {
+@media (max-width: 600px) {
   .title {
-    font-size: 32px;
+    font-size: 28px;
   }
 
   .stats {
-    gap: 12px;
+    gap: 8px;
   }
 
   .statItem {
-    padding: 8px 16px;
-    min-width: 60px;
+    padding: 8px 14px;
+    min-width: 55px;
   }
 
   .statValue {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .tubesContainer {
-    gap: 10px;
-    padding: 16px;
+    gap: 8px;
+    padding: 14px;
   }
 
   .tubeWrapper {
-    width: 65px;
+    width: 50px;
   }
 
   .tube {
-    min-height: 240px;
-    width: 56px;
-    padding: 6px;
-  }
-
-  .tubeBase {
-    width: 64px;
+    min-height: 180px;
+    width: 44px;
+    padding: 5px;
   }
 
   .ballSlot {
-    height: 50px;
+    height: 38px;
   }
 
   .ball {
-    width: 44px;
-    height: 44px;
-  }
-
-  .ballShine {
-    width: 14px;
-    height: 9px;
-    top: 5px;
-    left: 6px;
+    width: 32px;
+    height: 32px;
   }
 
   .button {
-    padding: 12px 20px;
-    font-size: 14px;
+    padding: 10px 18px;
+    font-size: 13px;
   }
 
   .winCard {
-    padding: 32px;
+    padding: 24px;
+  }
+
+  .winEmoji {
+    font-size: 48px;
   }
 
   .winTitle {
-    font-size: 32px;
+    font-size: 22px;
+  }
+
+  .winRating {
+    font-size: 20px;
   }
 }

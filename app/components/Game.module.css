@@ -5,6 +5,39 @@
   animation: fadeIn 0.5s ease;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes ballDrop {
+  0% { 
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  60% { transform: translateY(5px); }
+  100% { 
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 .header {
   text-align: center;
   margin-bottom: 30px;
@@ -27,39 +60,51 @@
 .statItem {
   background: rgba(255, 255, 255, 0.95);
   padding: 12px 24px;
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
 }
 
 .statLabel {
   font-weight: 600;
-  color: #666;
-  margin-right: 8px;
+  color: #888;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .statValue {
   font-weight: 800;
   color: #667eea;
-  font-size: 20px;
+  font-size: 28px;
 }
 
 .tubesContainer {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-  gap: 20px;
-  max-width: 800px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  max-width: 900px;
   margin: 0 auto 30px;
-  padding: 20px;
+  padding: 24px;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  border-radius: 24px;
   backdrop-filter: blur(10px);
 }
 
 .tubeWrapper {
+  flex: 0 0 auto;
+  width: 80px;
   cursor: pointer;
   transition: all 0.3s ease;
   animation: slideUp 0.5s ease;
   animation-fill-mode: both;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .tubeWrapper:nth-child(1) { animation-delay: 0.1s; }
@@ -76,44 +121,89 @@
 }
 
 .tubeWrapper.selected {
-  transform: translateY(-12px) scale(1.05);
+  transform: translateY(-16px) scale(1.05);
 }
 
 .tube {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  padding: 12px 8px;
-  min-height: 320px;
+  background: linear-gradient(180deg, 
+    rgba(255, 255, 255, 0.3) 0%, 
+    rgba(255, 255, 255, 0.9) 10%, 
+    rgba(240, 240, 250, 0.95) 100%
+  );
+  border-radius: 0 0 40px 40px;
+  padding: 8px;
+  min-height: 280px;
+  width: 70px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  gap: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  border: 3px solid transparent;
+  gap: 4px;
+  box-shadow: 
+    inset -3px 0 8px rgba(0, 0, 0, 0.1),
+    inset 3px 0 8px rgba(0, 0, 0, 0.1),
+    inset 0 -8px 16px rgba(0, 0, 0, 0.05),
+    0 8px 24px rgba(0, 0, 0, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  border-top: none;
   transition: all 0.3s ease;
 }
 
 .selected .tube {
   border-color: #667eea;
-  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.5);
+  box-shadow: 
+    inset -3px 0 8px rgba(0, 0, 0, 0.1),
+    inset 3px 0 8px rgba(0, 0, 0, 0.1),
+    inset 0 -8px 16px rgba(0, 0, 0, 0.05),
+    0 8px 32px rgba(102, 126, 234, 0.5),
+    0 0 20px rgba(102, 126, 234, 0.3);
+}
+
+.tubeBase {
+  width: 78px;
+  height: 12px;
+  background: linear-gradient(180deg, #ddd 0%, #aaa 100%);
+  border-radius: 0 0 8px 8px;
+  margin-top: -2px;
+}
+
+.selected .tubeBase {
+  background: linear-gradient(180deg, #667eea 0%, #5a67d8 100%);
 }
 
 .ballSlot {
   width: 100%;
-  height: 60px;
+  height: 58px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .ball {
-  width: 56px;
-  height: 56px;
-  background-size: cover;
-  background-position: center;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
-  animation: bounce 0.5s ease;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  border: 2px solid;
+  position: relative;
+  animation: ballDrop 0.4s ease-out;
+  transition: transform 0.2s ease;
+}
+
+.ball:hover {
+  transform: scale(1.08);
+}
+
+.ballShine {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  width: 18px;
+  height: 12px;
+  background: linear-gradient(180deg, 
+    rgba(255, 255, 255, 0.9) 0%, 
+    rgba(255, 255, 255, 0.4) 100%
+  );
+  border-radius: 50%;
+  transform: rotate(-30deg);
 }
 
 .controls {
@@ -127,15 +217,16 @@
   padding: 14px 28px;
   background: white;
   color: #667eea;
-  border-radius: 12px;
+  border-radius: 16px;
   font-size: 16px;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: all 0.2s ease;
+  border: 2px solid transparent;
 }
 
 .button:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
   transform: none !important;
 }
@@ -143,8 +234,12 @@
 .button:not(:disabled):hover {
   background: #667eea;
   color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.button:not(:disabled):active {
+  transform: translateY(-1px);
 }
 
 .winModal {
@@ -153,7 +248,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -163,16 +258,17 @@
 
 .winCard {
   background: white;
-  border-radius: 24px;
+  border-radius: 28px;
   padding: 48px;
   text-align: center;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
   animation: slideUp 0.5s ease;
   max-width: 400px;
+  margin: 20px;
 }
 
 .winTitle {
-  font-size: 48px;
+  font-size: 42px;
   margin-bottom: 16px;
   color: #667eea;
   font-weight: 800;
@@ -189,35 +285,80 @@
   font-weight: 800;
 }
 
+.winButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .playAgainButton {
   width: 100%;
-  padding: 16px;
+  padding: 18px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  border-radius: 12px;
+  border-radius: 16px;
   font-size: 18px;
-  font-weight: 600;
-  animation: bounce 2s ease-in-out infinite;
+  font-weight: 700;
+  transition: all 0.2s ease;
 }
 
 .playAgainButton:hover {
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
 }
 
+.replayButton {
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  color: #667eea;
+  border: 2px solid #667eea;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.replayButton:hover {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+/* Mobile responsive */
 @media (max-width: 768px) {
   .title {
-    font-size: 36px;
+    font-size: 32px;
+  }
+
+  .stats {
+    gap: 12px;
+  }
+
+  .statItem {
+    padding: 8px 16px;
+    min-width: 60px;
+  }
+
+  .statValue {
+    font-size: 22px;
   }
 
   .tubesContainer {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
+    gap: 10px;
     padding: 16px;
   }
 
+  .tubeWrapper {
+    width: 65px;
+  }
+
   .tube {
-    min-height: 280px;
-    padding: 8px 6px;
+    min-height: 240px;
+    width: 56px;
+    padding: 6px;
+  }
+
+  .tubeBase {
+    width: 64px;
   }
 
   .ballSlot {
@@ -225,8 +366,15 @@
   }
 
   .ball {
-    width: 46px;
-    height: 46px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .ballShine {
+    width: 14px;
+    height: 9px;
+    top: 5px;
+    left: 6px;
   }
 
   .button {
@@ -235,11 +383,10 @@
   }
 
   .winCard {
-    margin: 20px;
     padding: 32px;
   }
 
   .winTitle {
-    font-size: 36px;
+    font-size: 32px;
   }
 }

@@ -13,16 +13,51 @@ type Tube = Color[];
 const TUBE_CAPACITY = 4;
 const COLORS: Color[] = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
 
+// Vibrant, easy-to-distinguish colors with gradients for 3D effect
+const COLOR_STYLES: Record<Color, { background: string; border: string; shadow: string }> = {
+  red: {
+    background: 'linear-gradient(145deg, #FF6B6B 0%, #EE4444 50%, #CC2222 100%)',
+    border: '#AA0000',
+    shadow: 'rgba(238, 68, 68, 0.6)'
+  },
+  blue: {
+    background: 'linear-gradient(145deg, #5DADE2 0%, #3498DB 50%, #2471A3 100%)',
+    border: '#1A5276',
+    shadow: 'rgba(52, 152, 219, 0.6)'
+  },
+  green: {
+    background: 'linear-gradient(145deg, #58D68D 0%, #2ECC71 50%, #229954 100%)',
+    border: '#196F3D',
+    shadow: 'rgba(46, 204, 113, 0.6)'
+  },
+  yellow: {
+    background: 'linear-gradient(145deg, #F9E79F 0%, #F4D03F 50%, #D4AC0D 100%)',
+    border: '#9A7D0A',
+    shadow: 'rgba(244, 208, 63, 0.6)'
+  },
+  purple: {
+    background: 'linear-gradient(145deg, #BB8FCE 0%, #9B59B6 50%, #7D3C98 100%)',
+    border: '#5B2C6F',
+    shadow: 'rgba(155, 89, 182, 0.6)'
+  },
+  orange: {
+    background: 'linear-gradient(145deg, #FFAA5B 0%, #FF8C42 50%, #E67E22 100%)',
+    border: '#A04000',
+    shadow: 'rgba(255, 140, 66, 0.6)'
+  }
+};
+
 export default function Game({ onShowTutorial }: GameProps) {
   const [tubes, setTubes] = useState<Tube[]>([]);
   const [selectedTube, setSelectedTube] = useState<number | null>(null);
-  const [moveHistory, setMoveHistory] = useState<Array<{ from: number; to: number }>>([]);
+  const [moveHistory, setMoveHistory] = useState<Array<{ from: number; to: number; ballColor: Color }>>([]);
   const [isWon, setIsWon] = useState(false);
   const [moves, setMoves] = useState(0);
+  const [level, setLevel] = useState(1);
 
   useEffect(() => {
     initializeGame();
-  }, []);
+  }, [level]);
 
   const initializeGame = () => {
     // Create balls for each color
@@ -33,7 +68,7 @@ export default function Game({ onShowTutorial }: GameProps) {
       }
     });
 
-    // Shuffle balls
+    // Shuffle balls using Fisher-Yates
     for (let i = allBalls.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [allBalls[i], allBalls[j]] = [allBalls[j], allBalls[i]];
@@ -94,12 +129,12 @@ export default function Game({ onShowTutorial }: GameProps) {
         const toTube = tubes[tubeIndex];
 
         if (canPlaceBall(fromTube, toTube)) {
-          const newTubes = tubes.map((tube, idx) => [...tube]);
+          const newTubes = tubes.map((tube) => [...tube]);
           const ball = newTubes[selectedTube].pop()!;
           newTubes[tubeIndex].push(ball);
 
           setTubes(newTubes);
-          setMoveHistory([...moveHistory, { from: selectedTube, to: tubeIndex }]);
+          setMoveHistory([...moveHistory, { from: selectedTube, to: tubeIndex, ballColor: ball }]);
           setMoves(moves + 1);
           setSelectedTube(null);
 
@@ -132,13 +167,21 @@ export default function Game({ onShowTutorial }: GameProps) {
     initializeGame();
   };
 
+  const handleNextLevel = () => {
+    setLevel(level + 1);
+  };
+
   return (
     <div className={styles.game}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Color Sort</h1>
+        <h1 className={styles.title}>🎨 Color Sort</h1>
         <div className={styles.stats}>
           <div className={styles.statItem}>
-            <span className={styles.statLabel}>Moves:</span>
+            <span className={styles.statLabel}>Level</span>
+            <span className={styles.statValue}>{level}</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statLabel}>Moves</span>
             <span className={styles.statValue}>{moves}</span>
           </div>
         </div>
@@ -153,21 +196,31 @@ export default function Game({ onShowTutorial }: GameProps) {
           >
             <div className={styles.tube}>
               {[...Array(TUBE_CAPACITY)].map((_, ballIndex) => {
-                const ball = tube[TUBE_CAPACITY - 1 - ballIndex];
+                const actualIndex = TUBE_CAPACITY - 1 - ballIndex;
+                const ball = tube[actualIndex];
                 return (
                   <div key={ballIndex} className={styles.ballSlot}>
                     {ball && (
                       <div 
                         className={styles.ball}
                         style={{
-                          backgroundImage: `url(/balls/${ball}.png)`,
+                          background: COLOR_STYLES[ball].background,
+                          borderColor: COLOR_STYLES[ball].border,
+                          boxShadow: `
+                            inset 0 -8px 16px rgba(0,0,0,0.3),
+                            inset 0 8px 16px rgba(255,255,255,0.4),
+                            0 4px 12px ${COLOR_STYLES[ball].shadow}
+                          `
                         }}
-                      />
+                      >
+                        <div className={styles.ballShine} />
+                      </div>
                     )}
                   </div>
                 );
               })}
             </div>
+            <div className={styles.tubeBase} />
           </div>
         ))}
       </div>
@@ -197,13 +250,18 @@ export default function Game({ onShowTutorial }: GameProps) {
       {isWon && (
         <div className={styles.winModal}>
           <div className={styles.winCard}>
-            <h2 className={styles.winTitle}>🎉 You Won!</h2>
+            <h2 className={styles.winTitle}>🎉 Level Complete!</h2>
             <p className={styles.winText}>
               Completed in <strong>{moves}</strong> moves
             </p>
-            <button className={styles.playAgainButton} onClick={handleReset}>
-              Play Again
-            </button>
+            <div className={styles.winButtons}>
+              <button className={styles.playAgainButton} onClick={handleNextLevel}>
+                Next Level →
+              </button>
+              <button className={styles.replayButton} onClick={handleReset}>
+                Replay
+              </button>
+            </div>
           </div>
         </div>
       )}
